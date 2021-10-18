@@ -1,0 +1,21 @@
+{
+  "name": "@cs101/ppm-converter",
+  "version": "1.1.0",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "description": "Convert PBM, PGM, PCM to PNG",
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "version": "git add -A src",
+    "postversion": "git push && git push --tags"
+  },
+  "author": "David Collien",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  },
+  "files": [
+    "dist"
+  ]
+}
