@@ -6,7 +6,7 @@ Web viewer and converter for Netpbm files: .pbm, .pgm, .ppm (P1 - P6)
   - [Demo (with image)](https://d3lo92uftxhq1a.cloudfront.net/ppm/?image=example.ppm)
   - [Demo (with upload)](https://d3lo92uftxhq1a.cloudfront.net/ppm/)
 
-# PPM Converter
+# PPM Converter (Web)
 ```
 import { PpmImage } from "@cs101/ppm-converter";
 
@@ -14,5 +14,17 @@ const imageConverter = new PpmImage(data); // data = byte string
 
 imageConverter.getCanvas() // returns a canvas displaying the PPM file
 imageConverter.getPNG()    // returns a b64 DataURI of a PNG
+
+```
+
+# PPM Converter (NodeJS/Sharp)
+```
+import { PpmImage } from "@cs101/ppm-converter-sharp";
+
+const imageConverter = new PpmImage(data); // data = Uint8Array
+
+const image = imageConverter.getImage() // returns a sharp image
+
+await image.toFile("image.png");
 
 ```
