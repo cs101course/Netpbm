@@ -43,7 +43,7 @@ export class PpmImage {
 
       if (state === "format") {
         header.format += char;
-        if (i == 1) {
+        if (i === 1) {
           state = "width";
         }
       } else if (state === "comment") {
@@ -322,33 +322,10 @@ class PbmFormatter {
       throw new Error("No valid context");
     }
 
-    let img;
-
-    if (parser instanceof BinaryParser) {
-      let data = "";
-      let byte;
-      const bytesPerLine = Math.ceil(this._width / 8);
-
-      for (let i = 0; i < this._height; i++) {
-        let line = parser._data.substr(i * bytesPerLine, bytesPerLine);
-        let lineData = "";
-
-        for (let j = 0; j < line.length; j++)
-          lineData += ("0000000" + line.charCodeAt(j).toString(2)).substr(-8);
-        data += lineData.substr(0, this._width);
-      }
-
-      while ((byte = parser.getNextSample()) !== false) {
-        data += ("0000000" + byte.toString(2)).substr(-8);
-      }
-
-      parser = new AsciiParser(data.split("").join(" "), 1);
-    }
-
     canvas.width = this._width;
     canvas.height = this._height;
 
-    img = ctx.getImageData(0, 0, this._width, this._height);
+    const img = ctx.getImageData(0, 0, this._width, this._height);
 
     for (let row = 0; row < this._height; row++) {
       for (let col = 0; col < this._width; col++) {
