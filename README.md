@@ -28,3 +28,9 @@ const image = imageConverter.getImage() // returns a sharp image
 await image.toFile("image.png");
 
 ```
+
+## Credits:
+Inspiration taken from:
+- http://paulcuth.me.uk/netpbm-viewer
+- https://en.wikipedia.org/wiki/Netpbm
+- http://fejlesztek.hu/pbm-p4-image-file-format/ (to implement P1 and P4 correctly)

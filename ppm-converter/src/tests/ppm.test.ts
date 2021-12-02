@@ -46,6 +46,8 @@ const testPixel = function(canvas: HTMLCanvasElement, x: number, y: number, red:
 }
 
 test('Testing P1, P2, P3', () => {
+    // https://en.wikipedia.org/wiki/Netpbm
+    
     let ppm: PpmImage;
     let canvas: HTMLCanvasElement;
 
@@ -139,6 +141,7 @@ test('Testing P1, P2, P3', () => {
 });
 
 test('Testing P4', () => {
+    // http://fejlesztek.hu/pbm-p4-image-file-format/
     let ppm: PpmImage;
     let canvas: HTMLCanvasElement;
 
