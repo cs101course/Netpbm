@@ -36,4 +36,56 @@ export class WebImage {
             this._imageData.data[red + 3]
         ];
     }
+
+    getPpm(format: string) {
+        if (format === 'P3') {
+            return this.getPpmAscii();
+        } else if (format === 'P6') {
+            return this.getPpmBinary();
+        }
+
+        return null;
+    }
+
+    getPpmHeader(format: string) {
+        return [format, this._canvas.width.toString(), this._canvas.height.toString(), '255'].join('\n');
+    }
+
+    getPpmAscii() {
+        const header = this.getPpmHeader('P3');
+        let pixelData = '';
+
+        for (let y = 0; y < this._canvas.height; y++) {
+            for (let x = 0; x < this._canvas.width; x++) {
+                const pixels = this.getPixel(x, y);
+                for (let i = 0; i < 3; i++) {
+                    pixelData += pixels[i].toString();
+                    if (i == 2) {
+                        pixelData += '\n';
+                    } else {
+                        pixelData += ' ';
+                    }
+                }
+            }
+        }
+
+        return header + '\n' + pixelData;
+    }
+
+    getPpmBinary() {
+        const header = this.getPpmHeader('P6');
+
+        let pixelData = '';
+
+        for (let y = 0; y < this._canvas.height; y++) {
+            for (let x = 0; x < this._canvas.width; x++) {
+                const pixels = this.getPixel(x, y);
+                for (let i = 0; i < 3; i++) {
+                    pixelData += String.fromCharCode(pixels[i]);
+                }
+            }
+        }
+
+        return header + '\n' + pixelData;
+    }
 }
