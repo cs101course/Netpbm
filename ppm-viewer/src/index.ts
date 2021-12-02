@@ -1,9 +1,23 @@
-import { PpmImage } from "@cs101/ppm-converter";
+import { PpmImage, WebImage } from "@cs101/ppm-converter";
 
 const urlSearchParams = new URLSearchParams(window.location.search);
 const imageUrl = urlSearchParams.get("image");
 
 const canvasContainer = document.getElementById("canvas");
+
+function convertImage(image: HTMLImageElement) {
+  const format = 'P3';
+  const pngConverter = new WebImage(image);
+  const ppmImageData = pngConverter.getPpm(format);
+  renderImage(ppmImageData);
+
+  const link = document.createElement('a');
+  const blob = new Blob([ppmImageData], {type: 'image/x-portable-pixmap'});
+  link.href = URL.createObjectURL(blob);
+  link.target = '_blank';
+  link.textContent = 'Download PPM Image';
+  document.getElementById('ppmUrl').appendChild(link);
+}
 
 function renderImage(data: string) {
   const imageConverter = new PpmImage(data);
@@ -44,11 +58,23 @@ function loadFromUrl(url: string) {
 }
 
 function loadFromFile(file: File) {
-  const reader = new FileReader();
-  reader.onload = function (evt) {
-    renderImage(evt.target.result as string);
-  };
-  reader.readAsBinaryString(file);
+  if (file.type == 'image/png' || file.type == 'image/jpeg' || file.type == 'image/jpg') {
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+      const image = new Image();
+      image.onload = function() {
+        convertImage(image);
+      }
+      image.src = evt.target.result as string;
+    };
+    reader.readAsDataURL(file);
+  } else {
+    const reader = new FileReader();
+    reader.onload = function (evt) {
+      renderImage(evt.target.result as string);
+    };
+    reader.readAsBinaryString(file);
+  }
 }
 
 if (imageUrl) {

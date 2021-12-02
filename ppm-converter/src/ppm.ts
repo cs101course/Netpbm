@@ -1,4 +1,16 @@
-// Based on http://paulcuth.me.uk/netpbm-viewer/
+const padStart = function (inputString: string, targetLength: number, padString=' ') {
+  let padding = '';
+  targetLength = targetLength >> 0; //floor if number or convert non-number to 0;
+  if (inputString.length > targetLength) {
+    return String(inputString);
+  } else {
+    targetLength = targetLength - inputString.length;
+    while (padding.length <= targetLength) {
+      padding += padString
+    }
+    return padding.slice(0, targetLength) + String(inputString);
+  }
+};
 
 type ParseState =  "format" | "width" | "height" | "max" | "comment" | "data";
 
@@ -98,7 +110,7 @@ export class PpmImage {
     if (data) {
       switch (format) {
         case "P1":
-          this._parser = new AsciiParser(data, bytes);
+          this._parser = new BitStringParser(data);
           this._formatter = new PbmFormatter(width, height);
           break;
 
@@ -113,7 +125,7 @@ export class PpmImage {
           break;
 
         case "P4":
-          this._parser = new BinaryParser(data, bytes);
+          this._parser = new BitParser(data, width);
           this._formatter = new PbmFormatter(width, height);
           break;
 
@@ -176,6 +188,72 @@ class BinaryParser implements Parser {
       val = val * 255 + this._data.charCodeAt(this._pointer++);
     }
     return val;
+  }
+}
+
+class BitParser implements Parser {
+  _pointer: number;
+  _bits: number[];
+
+  constructor(data: string, width: number) {
+    this._pointer = 0;
+    this._bits = [];
+
+    this.bytesToBits(data, width);
+  }
+
+  bytesToBits(data: string, width: number) {
+    let byte: string;
+    let col: number;
+    let bitIndex: number;
+
+    const sizeOfByte = 8;
+    const bitWidth = Math.ceil(width/sizeOfByte) * sizeOfByte;
+
+    this._bits = [];
+    col = 0;
+    for (let byteIndex = 0; byteIndex < data.length; byteIndex++) {
+      byte = padStart(data.charCodeAt(byteIndex).toString(2), sizeOfByte, '0');
+      for (let digit = 0; digit < sizeOfByte; digit++) {
+        bitIndex = byteIndex * sizeOfByte + digit;
+        col = bitIndex % bitWidth;
+
+        if (col < width) {
+          // ignore padding bits
+          this._bits.push(parseInt(byte[digit], 2));
+        }
+      }
+    }
+  }
+
+  getNextSample() {
+    if (this._pointer >= this._bits.length) return false;
+
+    const val = this._bits[this._pointer++];
+    return 255 * val;
+  }
+}
+
+class BitStringParser implements Parser {
+  _data: string;
+  _pointer: number;
+
+  constructor(data: string) {
+    this._data = this.cleanText(data);
+    this._pointer = 0;
+  }
+
+  cleanText(data: string) {
+    // remove comments and extraneous whitespace
+    // and split into an array
+    return data.replace(/#.*/g, '').replace('\n', ' ').replace(/\s+/g, '').trim();
+  }
+
+  getNextSample() {
+    if (this._pointer >= this._data.length) return false;
+
+    const val = this._data[this._pointer++];
+    return 255 * parseInt(val, 10)
   }
 }
 
