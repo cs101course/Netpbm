@@ -5,18 +5,43 @@ const imageUrl = urlSearchParams.get("image");
 
 const canvasContainer = document.getElementById("canvas");
 
-function convertImage(image: HTMLImageElement) {
-  const format = 'P3';
-  const pngConverter = new WebImage(image);
-  const ppmImageData = pngConverter.getPpm(format);
-  renderImage(ppmImageData);
+function convertImage(image: HTMLImageElement, filename: string) {
+  const filenameParts = filename.split('.');
 
-  const link = document.createElement('a');
-  const blob = new Blob([ppmImageData], {type: 'image/x-portable-pixmap'});
-  link.href = URL.createObjectURL(blob);
-  link.target = '_blank';
-  link.textContent = 'Download PPM Image';
-  document.getElementById('ppmUrl').appendChild(link);
+  filenameParts[filenameParts.length - 1] = 'p3.ppm';
+
+  const newFilenameP3 = filenameParts.join('.');
+
+  filenameParts[filenameParts.length - 1] = 'p6.ppm';
+
+  const newFilenameP6 = filenameParts.join('.');
+
+  const formatConverter = new WebImage(image);
+  const ppmImageDataP6 = formatConverter.getPpm('P6');
+  const ppmImageDataP3 = formatConverter.getPpm('P3');
+  renderImage(ppmImageDataP6);
+
+  document.getElementById('ppmUrl').innerHTML = '';
+
+  const linkP3 = document.createElement('a');
+  const blobP3 = new Blob([ppmImageDataP3], {type: 'image/x-portable-pixmap'});
+  linkP3.href = URL.createObjectURL(blobP3);
+  linkP3.target = '_blank';
+  linkP3.textContent = 'Download PPM Image (P3)';
+  linkP3.download = newFilenameP3;
+  document.getElementById('ppmUrl').appendChild(linkP3);
+
+  document.getElementById('ppmUrl').appendChild(
+    document.createElement('br')
+  );
+
+  const linkP6 = document.createElement('a');
+  const blobP6 = new Blob([ppmImageDataP6], {type: 'image/x-portable-pixmap'});
+  linkP6.href = URL.createObjectURL(blobP6);
+  linkP6.target = '_blank';
+  linkP6.textContent = 'Download PPM Image (P6)';
+  linkP6.download = newFilenameP6;
+  document.getElementById('ppmUrl').appendChild(linkP6);
 }
 
 function renderImage(data: string) {
@@ -63,12 +88,13 @@ function loadFromFile(file: File) {
     reader.onload = function (evt) {
       const image = new Image();
       image.onload = function() {
-        convertImage(image);
+        convertImage(image, file.name);
       }
       image.src = evt.target.result as string;
     };
     reader.readAsDataURL(file);
   } else {
+    document.getElementById('ppmUrl').innerHTML = '';
     const reader = new FileReader();
     reader.onload = function (evt) {
       renderImage(evt.target.result as string);
