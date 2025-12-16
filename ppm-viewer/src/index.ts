@@ -73,7 +73,12 @@ function loadFromUrl(url: string) {
   const link = document.createElement('a');
   link.href = url;
   link.target = '_blank';
-  link.textContent = url.split('/').slice(-1)[0];
+  if (url.startsWith('data:')) {
+    link.textContent = 'Download Image';
+    link.download = 'image.ppm';
+  } else {
+    link.textContent = url.split('/').slice(-1)[0];
+  }
   document.getElementById('ppmUrl').appendChild(link);
   fetch(url)
     .then(function (response) {
